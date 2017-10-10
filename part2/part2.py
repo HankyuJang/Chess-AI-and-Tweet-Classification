@@ -42,4 +42,5 @@ if __name__ == "__main__":
 
     word, hashtag = readfile(training_file)
 
+    print("Dictionaries created. check 'word' or 'hashtag'")
     

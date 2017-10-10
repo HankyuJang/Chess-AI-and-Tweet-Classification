@@ -7,46 +7,41 @@ Created on Sun Oct 08 10:14:39 2017
 import sys
 from copy import deepcopy
 
-class Parakeet(object):
+class Piece(object):
     def __init__(self, x=None, y=None, p=None):
         self.position_x = x
         self.position_y = y
         self.player = "w" if p.isupper() else "b"
+    def __str__(self): return "."
+
+class Parakeet(Piece):
+    def __init__(self, x=None, y=None, p=None):
+        Piece.__init__(self, x, y, p)
     def __str__(self): return "P" if self.player == "w" else "p"
 
-class Robin(object):
+class Robin(Piece):
     def __init__(self, x=None, y=None, p=None):
-        self.position_x = x
-        self.position_y = y
-        self.player = "w" if p.isupper() else "b"
+        Piece.__init__(self, x, y, p)
     def __str__(self): return "R" if self.player == "w" else "r"
 
-class Bluejay(object):
+class Bluejay(Piece):
     def __init__(self, x=None, y=None, p=None):
-        self.position_x = x
-        self.position_y = y
-        self.player = "w" if p.isupper() else "b"
+        Piece.__init__(self, x, y, p)
     def __str__(self): return "B" if self.player == "w" else "b"
 
-class Quetzal(object):
+class Quetzal(Piece):
     def __init__(self, x=None, y=None, p=None):
-        self.position_x = x
-        self.position_y = y
-        self.player = "w" if p.isupper() else "b"
+        Piece.__init__(self, x, y, p)
     def __str__(self): return "Q" if self.player == "w" else "q"
 
-class Nighthawk(object):
+class Nighthawk(Piece):
     def __init__(self, x=None, y=None, p=None):
-        self.position_x = x
-        self.position_y = y
-        self.player = "w" if p.isupper() else "b"
+        Piece.__init__(self, x, y, p)
     def __str__(self): return "N" if self.player == "w" else "n"
 
-class Kingfisher(object):
+class Kingfisher(Piece):
     def __init__(self,x=None,y=None,p=None):
-        self.position_x = x
-        self.position_y = y
-        self.player = "w" if p.isupper() else "b"
+        Piece.__init__(self, x, y, p)
     def __str__(self): return "K" if self.player == "w" else "k"
 
 class Board(object):

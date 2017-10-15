@@ -95,11 +95,12 @@ RNBQKBNRPPPP.PPP...................q............ppp.pppprnb.kbnr
 Here's are come more commands that shows how the program works. `next` function is just used for this example (not used in `solve`).
 
 ```
+$ python -i pichu.py w RNBQKBNRPPPPPPPP................................pppppppprnbqkbnr 10
 print_board(S0)
 S1 = next(S0, 'p', 6, 4, 4, 4)
 S2 = next(S1, 'P', 1, 4, 3, 4)
 S3 = next(S2, 'p', 6, 3, 4, 3)
-print_successors(successor(S3, 'w'))
+print_successors(successor(S3, 'w')[0])
 print_board(S3)
 S4 = next(S3, 'P', 3, 4, 4, 3)
 S5 = next(S4, 'q', 7, 3, 4, 3)
@@ -108,6 +109,31 @@ S5 = next(S4, 'q', 7, 3, 4, 3)
 These are the results.
 
 ```
+[hankjang@silo part1]$ python -i pichu.py w RNBQKBNRPPPPPPPP................................pppppppprnbqkbnr 10
+Thinking! Please wait...
+
+Hmm, I'd recommend moving the Nighthawk at row 0 column 1 to row 2 column 0.
+
+R N B Q K B N R
+P P P P P P P P
+. . . . . . . .
+. . . . . . . .
+. . . . . . . .
+. . . . . . . .
+p p p p p p p p
+r n b q k b n r
+
+R . B Q K B N R
+P P P P P P P P
+N . . . . . . .
+. . . . . . . .
+. . . . . . . .
+. . . . . . . .
+p p p p p p p p
+r n b q k b n r
+
+New board:
+R.BQKBNRPPPPPPPPN...............................pppppppprnbqkbnr
 >>> print_board(S0)
 
 R N B Q K B N R
@@ -148,7 +174,7 @@ P P P P . P P P
 . . . . . . . .
 p p p . . p p p
 r n b q k b n r
->>> print_successors(successor(S3, 'w'))
+>>> print_successors(successor(S3, 'w')[0])
 
 R . B Q K B N R
 P P P P . P P P
@@ -450,7 +476,6 @@ P P P P . P P P
 p p p . . p p p
 r n b . k b n r
 ```
-
 
 To embed the formula to this markdown file, I used the following ![https://www.codecogs.com/latex/eqneditor.php](link) to convert the latex syntex into the html.
 

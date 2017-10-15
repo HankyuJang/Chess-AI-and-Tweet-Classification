@@ -94,8 +94,17 @@ RNBQKBNRPPPP.PPP...................q............ppp.pppprnb.kbnr
 
 Here's are come more commands that shows how the program works. `next` function is just used for this example (not used in `solve`).
 
+Each of functions, Q, K, R, ... returns the possible moves of each piece in a board assumign the board is empty (row, col) 
+
 ```
 $ python -i pichu.py w RNBQKBNRPPPPPPPP................................pppppppprnbqkbnr 10
+Q(0,0)
+K(0,5)
+R(1,1)
+B(3,1)
+N(5,5)
+P(1,1)
+p(6,1)
 print_board(S0)
 S1 = next(S0, 'p', 6, 4, 4, 4)
 S2 = next(S1, 'P', 1, 4, 3, 4)
@@ -134,6 +143,20 @@ r n b q k b n r
 
 New board:
 R.BQKBNRPPPPPPPPN...............................pppppppprnbqkbnr
+>>> Q(0,0)
+[(0, 1), (0, 2), (0, 3), (0, 4), (0, 5), (0, 6), (0, 7), (1, 0), (2, 0), (3, 0), (4, 0), (5, 0), (6, 0), (7, 0), (1, 1), (2, 2), (3, 3), (4, 4), (5, 5), (6, 6), (7, 7)]
+>>> K(0,5)
+[(1, 6), (1, 5), (1, 4), (0, 4), (0, 6)]
+>>> R(1,1)
+[(1, 0), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6), (1, 7), (0, 1), (2, 1), (3, 1), (4, 1), (5, 1), (6, 1), (7, 1)]
+>>> B(3,1)
+[(2, 0), (4, 2), (5, 3), (6, 4), (7, 5), (0, 4), (1, 3), (2, 2), (4, 0)]
+>>> N(5,5)
+[(7, 4), (7, 6), (6, 3), (6, 7), (4, 3), (4, 7), (3, 4), (3, 6)]
+>>> P(1,1)
+[(2, 1), (2, 0), (2, 2), (3, 1)]
+>>> p(6,1)
+[(5, 1), (5, 0), (5, 2), (4, 1)]
 >>> print_board(S0)
 
 R N B Q K B N R

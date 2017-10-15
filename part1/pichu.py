@@ -32,11 +32,19 @@ def loc(s, r, c):
 
 def successor(s, turn):
     board_list = []
+    move_list = []
     for i, piece in enumerate(s):
         if piece in player[turn]:
             r, c = i/8, i%8
-            board_list.extend([next_board(s,piece,r,c,r_n,c_n) for r_n,c_n in possible_move[piece](r, c) if is_valid(s,turn,piece,r,c,r_n,c_n)])
-    return board_list
+            possible_moves = possible_move[piece](r, c)
+            # board_list.extend([next_board(s,piece,r,c,r_n,c_n) for r_n,c_n in possible_moves if is_valid(s,turn,piece,r,c,r_n,c_n)])
+            boards = []
+            for r_n,c_n in possible_moves:
+                if is_valid(s,turn,piece,r,c,r_n,c_n):
+                    boards.append(next_board(s,piece,r,c,r_n,c_n))
+                    move_list.append((piece,r,c,r_n,c_n))
+            board_list.extend(boards)
+    return board_list, move_list
 
 def is_valid(s, turn, piece, r, c, r_n, c_n):
     if turn=='w':
@@ -91,6 +99,34 @@ def is_valid(s, turn, piece, r, c, r_n, c_n):
                     return False
     return True
 
+# Calculate cost for White
+def calculate_cost(s):
+    # calculate f5 of the evaluation function
+    f = [0,0,0,0,0]
+    for i, piece in enumerate(s):
+        if piece in player['w']:
+            f[4] += value[piece]
+        if piece in player['b']:
+            f[4] -= value[piece]
+    return sum(f)
+
+# Returns the best successor
+#
+# Current version: 1 depth BFS.
+#
+def solve(s, turn):
+    successors, moves = successor(s, turn)
+    cost_list = [calculate_cost(s_prime) for s_prime in successors]
+    if turn == 'w':
+        idx = cost_list.index(max(cost_list))
+        succ_next = successors[idx]
+        move_next = moves[idx]
+    else: # if black's turn, take the min cost
+        idx = cost_list.index(min(cost_list))
+        succ_next = successors[idx]
+        move_next = moves[idx]
+    return succ_next, move_next
+
 #######################################################################################
 # These are just functions to print results. I won't need them to run the script.
 def print_board(s):
@@ -110,15 +146,26 @@ def next(s, piece, r, c, r_n, c_n):
     print_board(board)
     print
     return board
+#
 #######################################################################################
 
 turn, S0, time = sys.argv[1], sys.argv[2], float(sys.argv[3])
 possible_move = {'K':K,'Q':Q,'R':R,'B':B,'N':N,'P':P,'k':K,'q':Q,'r':R,'b':B,'n':N,'p':p}
 player = {'w':['K','Q','R','B','N','P'], 'b':['k','q','r','b','n','p']}
-# print_board(S0)
-# print
-# S1 = successor(S0, turn)
-# for board in S1:
-    # print_board(board)
+value = {'K':100,'Q':9,'R':5,'B':3,'N':3,'P':1,'k':100,'q':9,'r':5,'b':3,'n':3,'p':1}
+name = {'K':"Kingfisher",'Q':"Quetzal",'R':"Robin",'B':"Blue jay",'N':"Nighthawk",'P':"Parakeet",
+        'k':"kingfisher",'q':"quetzal",'r':"robin",'b':"blue jay",'n':"nighthawk",'p':"parakeet"}
 
-# print_bs(S1)
+print("Thinking! Please wait...\n")
+S_next, M_next = solve(S0, turn)
+piece, r, c, r_n, c_n = M_next
+print("Hmm, I'd recommend moving the {} at row {} column {} to row {} column {}.".format(name[piece],r,c,r_n,c_n))
+#######################################################################################
+# Remove these lines later
+print_board(S0)
+print("")
+print_board(S_next)
+#
+#######################################################################################
+print("\n\nNew board:")
+print(S_next)

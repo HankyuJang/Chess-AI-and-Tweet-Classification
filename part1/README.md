@@ -8,11 +8,11 @@
 
 where 
 
-- <a href="https://www.codecogs.com/eqnedit.php?latex=f_1(s)" target="_blank"><img src="https://latex.codecogs.com/gif.latex?f_1(s)" title="f_1(s)" /></a> = Number of possible moves of the pieces for Max - Number of possible moves of the pieces for Min
-- <a href="https://www.codecogs.com/eqnedit.php?latex=f_2(s)" target="_blank"><img src="https://latex.codecogs.com/gif.latex?f_2(s)" title="f_2(s)" /></a> = Min checkmated - Max checkmated (here 1 if checkmate, otherwise 0)
-- <a href="https://www.codecogs.com/eqnedit.php?latex=f_3(s)" target="_blank"><img src="https://latex.codecogs.com/gif.latex?f_3(s)" title="f_3(s)" /></a> = Number of open tiles for Kingfisher for Max - Number of open tiles for Kingfisher for Min
-- <a href="https://www.codecogs.com/eqnedit.php?latex=f_4(s)" target="_blank"><img src="https://latex.codecogs.com/gif.latex?f_4(s)" title="f_4(s)" /></a> = Number of trapped pieces for Min - Number of trapped pieces for Max
-- <a href="https://www.codecogs.com/eqnedit.php?latex=f_5(s)" target="_blank"><img src="https://latex.codecogs.com/gif.latex?f_5(s)" title="f_5(s)" /></a> = Sum of the values of pieces for Max - Sum of the values of pieces for Min
+- <a href="https://www.codecogs.com/eqnedit.php?latex=f_1(s)" target="_blank"><img src="https://latex.codecogs.com/gif.latex?f_1(s)" title="f_1(s)" /></a> = Number of possible moves of the pieces for White - Number of possible moves of the pieces for Black
+- <a href="https://www.codecogs.com/eqnedit.php?latex=f_2(s)" target="_blank"><img src="https://latex.codecogs.com/gif.latex?f_2(s)" title="f_2(s)" /></a> = Black checkmated - White checkmated (here 1 if checkmate, otherwise 0)
+- <a href="https://www.codecogs.com/eqnedit.php?latex=f_3(s)" target="_blank"><img src="https://latex.codecogs.com/gif.latex?f_3(s)" title="f_3(s)" /></a> = Number of open tiles for Kingfisher for White - Number of open tiles for Kingfisher for Black
+- <a href="https://www.codecogs.com/eqnedit.php?latex=f_4(s)" target="_blank"><img src="https://latex.codecogs.com/gif.latex?f_4(s)" title="f_4(s)" /></a> = Number of trapped pieces for Black - Number of trapped pieces for White
+- <a href="https://www.codecogs.com/eqnedit.php?latex=f_5(s)" target="_blank"><img src="https://latex.codecogs.com/gif.latex?f_5(s)" title="f_5(s)" /></a> = Sum of the values of pieces for White - Sum of the values of pieces for Black
 
 and
 
@@ -29,12 +29,72 @@ and
 
 ### Usage
 
-Here's how to run the program. `next` function is just used for this example.
-
-Consider these commands. The result is shown below.
+Here's some plausible moves that occur in the beginning of a chess game. I printed two boards: above is the input board, below is the best successor.
+Now, the evaluation only calculates the <a href="https://www.codecogs.com/eqnedit.php?latex=f_5(s)" target="_blank"><img src="https://latex.codecogs.com/gif.latex?f_5(s)" title="f_5(s)" /></a> Sum of the values of pieces f    or White - Sum of the values of pieces for Black. 
 
 ```
-$ python -i pichu.py b RNBQKBNRPPPPPPPP................................pppppppprnbqkbnr 10
+[hankjang@silo part1]$ python -i pichu.py w RNBQKBNRPPPP.PPP............P......p............ppp.pppprnbqkbnr 10
+Thinking! Please wait...
+
+Hmm, I'd recommend moving the Parakeet at row 3 column 4 to row 4 column 3.
+
+R N B Q K B N R
+P P P P . P P P
+. . . . . . . .
+. . . . P . . .
+. . . p . . . .
+. . . . . . . .
+p p p . p p p p
+r n b q k b n r
+
+R N B Q K B N R
+P P P P . P P P
+. . . . . . . .
+. . . . . . . .
+. . . P . . . .
+. . . . . . . .
+p p p . p p p p
+r n b q k b n r
+
+New board:
+RNBQKBNRPPPP.PPP...................P............ppp.pppprnbqkbnr
+```
+
+Now it's black's turn. I fed in the New board as the input.
+
+```
+[hankjang@silo part1]$ python -i pichu.py b RNBQKBNRPPPP.PPP...................P............ppp.pppprnbqkbnr 10
+Thinking! Please wait...
+
+Hmm, I'd recommend moving the quetzal at row 7 column 3 to row 4 column 3.
+
+R N B Q K B N R
+P P P P . P P P
+. . . . . . . .
+. . . . . . . .
+. . . P . . . .
+. . . . . . . .
+p p p . p p p p
+r n b q k b n r
+
+R N B Q K B N R
+P P P P . P P P
+. . . . . . . .
+. . . . . . . .
+. . . q . . . .
+. . . . . . . .
+p p p . p p p p
+r n b . k b n r
+
+New board:
+RNBQKBNRPPPP.PPP...................q............ppp.pppprnb.kbnr
+```
+
+
+
+Here's are come more commands that shows how the program works. `next` function is just used for this example (not used in `solve`).
+
+```
 print_board(S0)
 S1 = next(S0, 'p', 6, 4, 4, 4)
 S2 = next(S1, 'P', 1, 4, 3, 4)

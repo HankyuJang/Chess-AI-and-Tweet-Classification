@@ -91,25 +91,34 @@ def is_valid(s, turn, piece, r, c, r_n, c_n):
                     return False
     return True
 
+#######################################################################################
+# These are just functions to print results. I won't need them to run the script.
 def print_board(s):
     for i, piece in enumerate(s):
         if i % 8 == 0:
             print
         print piece, 
 
-def print_bs(boards):
+def print_successors(boards):
     for board in boards:
         print_board(board)
         print
 
+def next(s, piece, r, c, r_n, c_n):
+    s_prime = s[:r*8+c] + '.' + s[r*8+c + 1:]
+    board = s_prime[:r_n*8 + c_n] + piece + s_prime[r_n*8 + c_n+1:]
+    print_board(board)
+    print
+    return board
+#######################################################################################
 
 turn, S0, time = sys.argv[1], sys.argv[2], float(sys.argv[3])
 possible_move = {'K':K,'Q':Q,'R':R,'B':B,'N':N,'P':P,'k':K,'q':Q,'r':R,'b':B,'n':N,'p':p}
 player = {'w':['K','Q','R','B','N','P'], 'b':['k','q','r','b','n','p']}
 # print_board(S0)
 # print
-S1 = successor(S0, turn)
+# S1 = successor(S0, turn)
 # for board in S1:
     # print_board(board)
 
-print_bs(S1)
+# print_bs(S1)

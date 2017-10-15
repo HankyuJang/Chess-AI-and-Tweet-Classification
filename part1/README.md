@@ -27,6 +27,369 @@ and
     - Robin - 5 points
     - Quetzal - 9 points
 
+### Usage
+
+Here's how to run the program. `next` function is just used for this example.
+
+Consider these commands. The result is shown below.
+
+```
+$ python -i pichu.py b RNBQKBNRPPPPPPPP................................pppppppprnbqkbnr 10
+print_board(S0)
+S1 = next(S0, 'p', 6, 4, 4, 4)
+S2 = next(S1, 'P', 1, 4, 3, 4)
+S3 = next(S2, 'p', 6, 3, 4, 3)
+print_successors(successor(S3, 'w'))
+print_board(S3)
+S4 = next(S3, 'P', 3, 4, 4, 3)
+S5 = next(S4, 'q', 7, 3, 4, 3)
+```
+
+These are the results.
+
+```
+>>> print_board(S0)
+
+R N B Q K B N R
+P P P P P P P P
+. . . . . . . .
+. . . . . . . .
+. . . . . . . .
+. . . . . . . .
+p p p p p p p p
+r n b q k b n r
+>>> S1 = next(S0, 'p', 6, 4, 4, 4)
+
+R N B Q K B N R
+P P P P P P P P
+. . . . . . . .
+. . . . . . . .
+. . . . p . . .
+. . . . . . . .
+p p p p . p p p
+r n b q k b n r
+>>> S2 = next(S1, 'P', 1, 4, 3, 4)
+
+R N B Q K B N R
+P P P P . P P P
+. . . . . . . .
+. . . . P . . .
+. . . . p . . .
+. . . . . . . .
+p p p p . p p p
+r n b q k b n r
+>>> S3 = next(S2, 'p', 6, 3, 4, 3)
+
+R N B Q K B N R
+P P P P . P P P
+. . . . . . . .
+. . . . P . . .
+. . . p p . . .
+. . . . . . . .
+p p p . . p p p
+r n b q k b n r
+>>> print_successors(successor(S3, 'w'))
+
+R . B Q K B N R
+P P P P . P P P
+N . . . . . . .
+. . . . P . . .
+. . . p p . . .
+. . . . . . . .
+p p p . . p p p
+r n b q k b n r
+
+R . B Q K B N R
+P P P P . P P P
+. . N . . . . .
+. . . . P . . .
+. . . p p . . .
+. . . . . . . .
+p p p . . p p p
+r n b q k b n r
+
+R N B . K B N R
+P P P P Q P P P
+. . . . . . . .
+. . . . P . . .
+. . . p p . . .
+. . . . . . . .
+p p p . . p p p
+r n b q k b n r
+
+R N B . K B N R
+P P P P . P P P
+. . . . . Q . .
+. . . . P . . .
+. . . p p . . .
+. . . . . . . .
+p p p . . p p p
+r n b q k b n r
+
+R N B . K B N R
+P P P P . P P P
+. . . . . . . .
+. . . . P . Q .
+. . . p p . . .
+. . . . . . . .
+p p p . . p p p
+r n b q k b n r
+
+R N B . K B N R
+P P P P . P P P
+. . . . . . . .
+. . . . P . . .
+. . . p p . . Q
+. . . . . . . .
+p p p . . p p p
+r n b q k b n r
+
+R N B Q . B N R
+P P P P K P P P
+. . . . . . . .
+. . . . P . . .
+. . . p p . . .
+. . . . . . . .
+p p p . . p p p
+r n b q k b n r
+
+R N B Q K . N R
+P P P P B P P P
+. . . . . . . .
+. . . . P . . .
+. . . p p . . .
+. . . . . . . .
+p p p . . p p p
+r n b q k b n r
+
+R N B Q K . N R
+P P P P . P P P
+. . . B . . . .
+. . . . P . . .
+. . . p p . . .
+. . . . . . . .
+p p p . . p p p
+r n b q k b n r
+
+R N B Q K . N R
+P P P P . P P P
+. . . . . . . .
+. . B . P . . .
+. . . p p . . .
+. . . . . . . .
+p p p . . p p p
+r n b q k b n r
+
+R N B Q K . N R
+P P P P . P P P
+. . . . . . . .
+. . . . P . . .
+. B . p p . . .
+. . . . . . . .
+p p p . . p p p
+r n b q k b n r
+
+R N B Q K . N R
+P P P P . P P P
+. . . . . . . .
+. . . . P . . .
+. . . p p . . .
+B . . . . . . .
+p p p . . p p p
+r n b q k b n r
+
+R N B Q K B . R
+P P P P . P P P
+. . . . . N . .
+. . . . P . . .
+. . . p p . . .
+. . . . . . . .
+p p p . . p p p
+r n b q k b n r
+
+R N B Q K B . R
+P P P P . P P P
+. . . . . . . N
+. . . . P . . .
+. . . p p . . .
+. . . . . . . .
+p p p . . p p p
+r n b q k b n r
+
+R N B Q K B . R
+P P P P N P P P
+. . . . . . . .
+. . . . P . . .
+. . . p p . . .
+. . . . . . . .
+p p p . . p p p
+r n b q k b n r
+
+R N B Q K B N R
+. P P P . P P P
+P . . . . . . .
+. . . . P . . .
+. . . p p . . .
+. . . . . . . .
+p p p . . p p p
+r n b q k b n r
+
+R N B Q K B N R
+. P P P . P P P
+. . . . . . . .
+P . . . P . . .
+. . . p p . . .
+. . . . . . . .
+p p p . . p p p
+r n b q k b n r
+
+R N B Q K B N R
+P . P P . P P P
+. P . . . . . .
+. . . . P . . .
+. . . p p . . .
+. . . . . . . .
+p p p . . p p p
+r n b q k b n r
+
+R N B Q K B N R
+P . P P . P P P
+. . . . . . . .
+. P . . P . . .
+. . . p p . . .
+. . . . . . . .
+p p p . . p p p
+r n b q k b n r
+
+R N B Q K B N R
+P P . P . P P P
+. . P . . . . .
+. . . . P . . .
+. . . p p . . .
+. . . . . . . .
+p p p . . p p p
+r n b q k b n r
+
+R N B Q K B N R
+P P . P . P P P
+. . . . . . . .
+. . P . P . . .
+. . . p p . . .
+. . . . . . . .
+p p p . . p p p
+r n b q k b n r
+
+R N B Q K B N R
+P P P . . P P P
+. . . P . . . .
+. . . . P . . .
+. . . p p . . .
+. . . . . . . .
+p p p . . p p p
+r n b q k b n r
+
+R N B Q K B N R
+P P P . . P P P
+. . . . . . . .
+. . . P P . . .
+. . . p p . . .
+. . . . . . . .
+p p p . . p p p
+r n b q k b n r
+
+R N B Q K B N R
+P P P P . . P P
+. . . . . P . .
+. . . . P . . .
+. . . p p . . .
+. . . . . . . .
+p p p . . p p p
+r n b q k b n r
+
+R N B Q K B N R
+P P P P . . P P
+. . . . . . . .
+. . . . P P . .
+. . . p p . . .
+. . . . . . . .
+p p p . . p p p
+r n b q k b n r
+
+R N B Q K B N R
+P P P P . P . P
+. . . . . . P .
+. . . . P . . .
+. . . p p . . .
+. . . . . . . .
+p p p . . p p p
+r n b q k b n r
+
+R N B Q K B N R
+P P P P . P . P
+. . . . . . . .
+. . . . P . P .
+. . . p p . . .
+. . . . . . . .
+p p p . . p p p
+r n b q k b n r
+
+R N B Q K B N R
+P P P P . P P .
+. . . . . . . P
+. . . . P . . .
+. . . p p . . .
+. . . . . . . .
+p p p . . p p p
+r n b q k b n r
+
+R N B Q K B N R
+P P P P . P P .
+. . . . . . . .
+. . . . P . . P
+. . . p p . . .
+. . . . . . . .
+p p p . . p p p
+r n b q k b n r
+
+R N B Q K B N R
+P P P P . P P P
+. . . . . . . .
+. . . . . . . .
+. . . P p . . .
+. . . . . . . .
+p p p . . p p p
+r n b q k b n r
+>>> print_board(S3)
+
+R N B Q K B N R
+P P P P . P P P
+. . . . . . . .
+. . . . P . . .
+. . . p p . . .
+. . . . . . . .
+p p p . . p p p
+r n b q k b n r
+>>> S4 = next(S3, 'P', 3, 4, 4, 3)
+
+R N B Q K B N R
+P P P P . P P P
+. . . . . . . .
+. . . . . . . .
+. . . P p . . .
+. . . . . . . .
+p p p . . p p p
+r n b q k b n r
+>>> S5 = next(S4, 'q', 7, 3, 4, 3)
+
+R N B Q K B N R
+P P P P . P P P
+. . . . . . . .
+. . . . . . . .
+. . . q p . . .
+. . . . . . . .
+p p p . . p p p
+r n b . k b n r
+```
 
 
 To embed the formula to this markdown file, I used the following ![https://www.codecogs.com/latex/eqneditor.php](link) to convert the latex syntex into the html.

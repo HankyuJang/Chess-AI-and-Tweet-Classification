@@ -1,0 +1,15 @@
+(dp1
+S'RNBQKBNRPPPPPPPP................................pppppppprnbqkbnr'
+p2
+(dp3
+S'w'
+(S'RNBQKBNRPPP.PPPP...........P....................pppppppprnbqkbnr'
+p4
+(S'P'
+I1
+I3
+I3
+I3
+tp5
+tp6
+ss.

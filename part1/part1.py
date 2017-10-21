@@ -1,321 +1,262 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
-"""
-Created on Sun Oct 08 10:14:39 2017
-@author: PulkitMaloo
-"""
-##Can use signal or resource module to stop the program
-
 import sys
-from copy import deepcopy
+import cPickle
+import shelve
 
-class Piece(object):
-    def __init__(self, x=None, y=None, p=None):
-        self.position_x = x
-        self.position_y = y
-        self.piece_type = None
-        self.player = None if p == "." else "w" if p.isupper() else "b"
-    def __str__(self): return "."
-    def getPosition(self): return self.position_x, self.position_y
-    def setPosition(self, x, y):
-        self.position_x = x
-        self.position_y = y
+def p(r,c):
+    return [(r,c) for r,c in [(r-1,c),(r-1,c-1),(r-1,c+1),(r-2,c)] if in_board(r,c)] if r==6 else [(r,c) for r,c in [(r-1,c),(r-1,c-1),(r-1,c+1)] if in_board(r,c)]
+def P(r,c):
+    return [(r,c) for r,c in [(r+1,c),(r+1,c-1),(r+1,c+1),(r+2,c)] if in_board(r,c)] if r==1 else [(r,c) for r,c in [(r+1,c),(r+1,c-1),(r+1,c+1)] if in_board(r,c)]
+def N(r, c):
+    return [(r,c) for r,c in [(r+2,c-1),(r+2,c+1),(r+1,c-2),(r+1,c+2),(r-1,c-2),(r-1,c+2),(r-2,c-1),(r-2,c+1)] if in_board(r,c)]
+def B(r, c):
+    diff, summ = r-c, r+c
+    return [(r,c) for r,c in filter(lambda a: a != (r, c), [(i, i-diff) for i in range(8)] + [(i, summ-i) for i in range(8)]) if in_board(r,c)]
+def R(r, c):
+    return [(r,c) for r,c in filter(lambda a: a != (r, c), [(r,i) for i in range(8)] + [(i,c) for i in range(8)]) if in_board(r,c)]
+def Q(r, c):
+    return R(r,c) + B(r,c)
+def K(r, c):
+    return [(r,c) for r,c in [(r+1,c+1),(r+1,c),(r+1,c-1),(r,c-1),(r-1,c-1),(r-1,c),(r-1,c+1),(r,c+1)] if in_board(r,c)]
 
-class Parakeet(Piece):
-    def __init__(self, x=None, y=None, p=None):
-        Piece.__init__(self, x, y, p)
-        self.piece_type = "Parakeet"
-        self.first_move = True
-    def __str__(self): return "P" if self.player == "w" else "p"
+def in_board(r, c):
+    return 0 <= r <= 7 and 0 <= c <= 7
 
-class Robin(Piece):
-    def __init__(self, x=None, y=None, p=None):
-        Piece.__init__(self, x, y, p)
-        self.piece_type = "Robin"
-    def __str__(self): return "R" if self.player == "w" else "r"
+# row_n: next row, col_n: next col, row: current row, col: current col
+# current location in string: r*8 + c
+# next location in string: r_n*8 + c_n
+def next_board(s, piece, r, c, r_n, c_n):
+    s_prime = s[:r*8+c] + '.' + s[r*8+c + 1:]
+    return s_prime[:r_n*8 + c_n] + piece + s_prime[r_n*8 + c_n+1:]
 
-class Bluejay(Piece):
-    def __init__(self, x=None, y=None, p=None):
-        Piece.__init__(self, x, y, p)
-        self.piece_type = "Bluejay"
-    def __str__(self): return "B" if self.player == "w" else "b"
+def loc(s, r, c):
+    return s[r*8 + c]
 
-class Quetzal(Piece):
-    def __init__(self, x=None, y=None, p=None):
-        Piece.__init__(self, x, y, p)
-        self.piece_type = "Quetzal"
-    def __str__(self): return "Q" if self.player == "w" else "q"
+def successor(s, t):
+    if s in succ_dict:
+        if t in succ_dict[s]:
+            global succ_count
+            succ_count += 1
+#            print "Successor accessed from dictionary"
+            return succ_dict[s][t]
+    board_list = []
+    move_list = []
+    f = [0, 0, 0, 0, 0]
+    global turn
+    for i, piece in enumerate(s):
+        r, c = i/8, i%8
+        if piece in player[t]:
+            f[4] += value[piece]
+            possible_moves = possible_move[piece](r, c)
+            # board_list.extend([next_board(s,piece,r,c,r_n,c_n) for r_n,c_n in possible_moves if is_valid(s,turn,piece,r,c,r_n,c_n)])
+            boards = []
+            for r_n, c_n in possible_moves:
+                if is_valid(s, t, piece, r, c, r_n, c_n):
+                    boards.append(next_board(s, piece, r, c, r_n, c_n))
+                    move_list.append((piece, r, c, r_n, c_n))
+                    f[0] += 2
+            board_list.extend(boards)
+        if turn == t:
+            if piece in player[change_turn(t)]:
+                f[4] -= value[piece]
+                possible_moves = possible_move[piece](r, c)
+                for r_n, c_n in possible_moves:
+                    if is_valid(s, change_turn(t), piece, r, c, r_n, c_n):
+                        f[0] -= 1
+    succ_dict[s] = {}
+    succ_dict[s][t] = (board_list, move_list)
+    if t == turn:
+        cost_dict[s] = {}
+        cost_dict[s][t] = sum(f)
+    return (board_list, move_list)
 
-class Nighthawk(Piece):
-    def __init__(self, x=None, y=None, p=None):
-        Piece.__init__(self, x, y, p)
-        self.piece_type = "Nighthawk"
-    def __str__(self): return "N" if self.player == "w" else "n"
+def is_valid(s, turn, piece, r, c, r_n, c_n):
+    if turn=='w':
+        if piece=='P': # Check the 'P' in advance
+            if r_n-r == 1 and c_n==c: # Check one-step move
+                if loc(s, r_n, c_n) != '.':
+                    return False
+            elif r_n-r == 2: # Check the inital two-step move
+                if loc(s,2,c) != '.':
+                    return False
+            elif c != c_n: # Check the attack move
+                if loc(s,r_n,c_n) not in player['b']:
+                    return False
+        if loc(s, r_n, c_n) in player['w']:
+            return False
+    elif turn=='b':
+        if piece=='p': # Check the 'P' in advance
+            if r-r_n == 1 and c_n==c: # Check one-step move
+                if loc(s, r_n, c_n) != '.':
+                    return False
+            elif r-r_n == 2: # Check the inital two-step move
+                if loc(s,5,c) != '.':
+                    return False
+            elif c != c_n: # Check the attack move
+                if loc(s,r_n,c_n) not in player['w']:
+                    return False
+        if loc(s, r_n, c_n) in player['b']:
+            return False
 
-class Kingfisher(Piece):
-    def __init__(self,x=None,y=None,p=None):
-        Piece.__init__(self, x, y, p)
-        self.piece_type = "Kingfisher"
-    def __str__(self): return "K" if self.player == "w" else "k"
-    def getPosition(self): return self.position_x, self.position_y
+    if piece=='R' or piece=='Q' or piece=='r' or piece=='q':
+        if r==r_n: # Horizontal move
+            for i in range(min(c,c_n)+1, max(c,c_n)):
+                if loc(s,r,i) != '.':
+                    return False
+        elif c==c_n: # Vertical move
+            for i in range(min(r,r_n)+1, max(r,r_n)):
+                if loc(s,i,c) != '.':
+                    return False
 
+    if piece=='B' or piece=='Q' or piece=='b' or piece=='q':
+        if r-r_n == c-c_n: # RightDown or LeftUp
+            for i in range(1, abs(c-c_n)):
+                if loc(s,min(r,r_n)+i,min(c,c_n)+i) != '.':
+                    return False
+        elif r-r_n == c_n-c: # RightUp, LeftDown
+            for i in range(1, abs(c-c_n)):
+                if loc(s, max(r,r_n)-i, min(c,c_n)+i) != '.':
+                    return False
+    return True
 
-class Board(object):
-    def __init__(self, board):
-        self.board = board if isinstance(board, list) else self.create_board(board)
-    def __repr__(self):
-        return "\n".join([" ".join([str(self.board[i][j]) for j in range(8)]) for i in range(8)])
-    def create_board(self, init_board):
-        pieces_dict = {"P":"Parakeet", "Q":"Quetzal", "B":"Bluejay", "N":"Nighthawk", "R":"Robin", "K":"Kingfisher", "p":"Parakeet", "q":"Quetzal", "b":"Bluejay", "n":"Nighthawk", "r":"Robin", "k":"Kingfisher", ".":"Piece"}
-        board = [[None]*8 for i in range(8)]
-        for i, piece in enumerate(init_board):
-            x, y = i/8, i%8
-            board[x][y] = eval(pieces_dict[piece]+"("+str(x)+","+str(y)+","+"'"+str(piece)+"'"+")")
-        return board
-    def __getitem__(self, indices):
-#        if not isinstance(indices, tuple):
-#            indices = tuple(indices)
-        return self.board[indices]
-        def heuristic(self, board): pass
-
-class Player(object):
-    def __init__(self, name, board):
-        self.name = name
-        self.turn = False
-        self.player_pieces = self.getPieces(board)
-    def getPieces(self, board):
-        player_pieces = []
-        for row in board:
-            for piece in row:
-                if piece.player == self.name:
-                    player_pieces.append(piece)
-        return player_pieces
-    def removePiece(self, piece):
-        self.player_pieces.remove(piece)
-    def move_piece(self, board, piece): pass
-    def possible_moves(self, board):
-        moves = []
-        for piece in self.player_pieces:
-            moves.append(eval("self.move_"+piece.piece_type.lower()+"(board, piece)"))
-        return moves
-    def shift_move(self, board, from_x, from_y, to_x, to_y):
-        board[from_x][from_y].setPosition(to_x, to_y)
-        board[from_x][from_y], board[to_x][to_y] = board[to_x][to_y], board[from_x][from_y]
-        return board
-    def kill_move(self, board, from_x, from_y, to_x, to_y):
-#        self.removePiece(board[to_x][to_y])
-        board[from_x][from_y].setPosition(to_x, to_y)
-        board[to_x][to_y] = board[from_x][from_y]
-        board[from_x][from_y] = Piece(from_x, from_y, ".")
-        return board
-    def isMoveValid(self, board, from_x, from_y, to_x, to_y):
-        if 0 <= to_x <= 7 and 0 <= to_y <= 7:
-            if board[to_x][to_y].piece_type:
-                return "kill" if board[to_x][to_y].player != board[from_x][from_y].player else False
-            return "shift"
-        return False
-    def canMoveDown(self, board, piece):
-        x, y = piece.getPosition()
-        return self.isMoveValid(board, x, y, x+1, y)
-    def canMoveUp(self, board, piece):
-        x, y = piece.getPosition()
-        return self.isMoveValid(board, x, y, x-1, y)
-    def canMoveRight(self, board, piece):
-        x, y = piece.getPosition()
-        return self.isMoveValid(board, x, y, x, y+1)
-    def canMoveLeft(self, board, piece):
-        x, y = piece.getPosition()
-        return self.isMoveValid(board, x, y, x, y-1)
-    def canMoveUpRight(self, board, piece):
-        x, y = piece.getPosition()
-        return self.isMoveValid(board, x, y, x-1, y+1)
-    def canMoveDownRight(self, board, piece):
-        x, y = piece.getPosition()
-        return self.isMoveValid(board, x, y, x+1, y+1)
-    def canMoveDownLeft(self, board, piece):
-        x, y = piece.getPosition()
-        return self.isMoveValid(board, x, y, x+1, y-1)
-    def canMoveUpLeft(self, board, piece):
-        x, y = piece.getPosition()
-        return self.isMoveValid(board, x, y, x-1, y-1)
-    def move_kingfisher(self, board, piece):
-        moves = []
-        x, y = piece.getPosition()
-        moves_direction = {'Down':("x+1","y"),'Up':("x-1","y"),'Right':("x","y+1"),'Left':("x","y-1"),'UpRight':("x-1","y+1"),'DownRight':("x+1","y+1"),'DownLeft':("x+1","y-1"),'UpLeft':("x-1","y-1")}
-        for direction in moves_direction:
-            move_type = eval("self.canMove"+direction+"(board, piece)")
-            if move_type:
-                moves.append(eval("self."+move_type+"_move(deepcopy(board), x, y, "+moves_direction[direction][0]+","+moves_direction[direction][1]+")"))
-        return moves
-    def move_quetzel(self, board, piece):
-        moves = []
-        x, y = piece.getPosition()
-        return moves
-
-    def move_parakeet(self, board, piece):
-        moves = []
-        x, y = piece.getPosition()
-        if self.name == "w":
-            if x+1 <= 7:
-                #move down if no blocking
-                if not board[x+1][y].piece_type:
-                    moves.append(self.shift_move(board, x, y, x+1, y))
-                    if piece.first_move and not board[x+2][y].piece_type:
-                        moves.append(self.shift_move(board, x, y, x+2, y))
-                if board[x+1][y+1].piece_type != piece.piece_type:
-                    moves.append(self.kill_move(board, x, y, x+1, y+1))
-                if board[x+1][y-1].piece_type != piece.piece_type:
-                    moves.append(self.kill_move(board, x, y, x+1, y-1))
-#                piece.first_move = False #<- when actual move will be made
-                if x+1 == 7:
-                    #convert to queen
-                    pass
-        else:
-            if x-1 >= 0:
-                if not board[x-1][y].piece_type:
-                    moves.append(self.shift_move(board, x, y, x-1, y))
-                    if piece.first_move() and not board[x-2][y].piece_type:
-                        moves.append(self.shift_move(board, x, y, x-2, y))
-                if board[x-1][y+1].piece_type != piece.piece_type:
-                    moves.append(self.kill_move(board, x, y, x-1, y+1))
-                if board[x-1][y-1].piece_type != piece.piece_type:
-                    moves.append(self.kill_move(board, x, y, x-1, y-1))
-        return moves
-
-    def move_robin(self, board, piece):
-        moves = []
-        return moves
-
-    def move_bluejay(self, board, piece):
-        moves = []
-        return moves
-
-def move_up(board, piece):
-    x = piece.position_x
-    y = piece.position_y
-    if board[x-1][y].piece_type:
-        board[x][y], board[x-1][y] = board[x-1][y], board[x][y]
-        piece.position_x -= 1
-    elif board[x-1][y].player != piece.player:
-        board[x][y] = Piece(x, y, ".")
-        board[x-1][y] = piece
-        piece.position_x -= 1
-    else:
-        pass
-    return board
-
-def move_right(board, piece):
-    x = piece.position_x
-    y = piece.position_y
-    if board[x][y+1].piece_type:
-        board[x][y], board[x][y+1] = board[x][y+1], board[x][y]
-        piece.position_y += 1
-    elif board[x][y+1].player != piece.player:
-        board[x][y] = Piece(x, y, ".")
-        board[x][y+1] = piece
-        piece.position_y += 1
-    else:
-        pass
-    return board
-
-def move_left(board, piece):
-    x = piece.position_x
-    y = piece.position_y
-    if board[x][y-1].piece_type:
-        board[x][y], board[x][y-1] = board[x][y-1], board[x][y]
-        piece.position_y -= 1
-    elif board[x][y-1].player != piece.player:
-        board[x][y] = Piece(x, y, ".")
-        board[x][y-1] = piece
-        piece.position_y -= 1
-    else:
-        pass
-    return board
-
-def move_up_right(board, piece):
-    x = piece.position_x
-    y = piece.position_y
-    if board[x-1][y+1].piece_type:
-        board[x][y], board[x-1][y+1] = board[x-1][y+1], board[x][y]
-        piece.position_x -= 1
-        piece.position_y += 1
-    elif board[x-1][y+1].player != piece.player:
-        board[x][y] = Piece(x, y, ".")
-        board[x-1][y+1] = piece
-        piece.position_x -= 1
-        piece.position_y += 1
-    else:
-        pass
-    return board
-
-def move_up_left(board, piece):
-    x = piece.position_x
-    y = piece.position_y
-    if board[x-1][y-1].piece_type:
-        board[x][y], board[x-1][y-1] = board[x-1][y-1], board[x][y]
-        piece.position_x -= 1
-        piece.position_y -= 1
-    elif board[x-1][y-1].player != piece.player:
-        board[x][y] = Piece(x, y, ".")
-        board[x-1][y-1] = piece
-        piece.position_x -= 1
-        piece.position_y -= 1
-    else:
-        pass
-    return board
-
-def move_down_right(board, piece):
-    x = piece.position_x
-    y = piece.position_y
-    if board[x+1][y+1].piece_type:
-        board[x][y], board[x+1][y+1] = board[x+1][y+1], board[x][y]
-        piece.position_x += 1
-        piece.position_y += 1
-    elif board[x+1][y+1].player != piece.player:
-        board[x][y] = Piece(x, y, ".")
-        board[x+1][y+1] = piece
-        piece.position_x += 1
-        piece.position_y += 1
-    else:
-        pass
-    return Board(board)
-
-def move_down_left(board, piece):
-    x = piece.position_x
-    y = piece.position_y
-    if board[x+1][y-1].piece_type:
-        board[x][y], board[x+1][y-1] = board[x+1][y-1], board[x][y]
-        piece.position_x += 1
-        piece.position_y -= 1
-    elif board[x+1][y-1].player != piece.player:
-        board[x][y] = Piece(x, y, ".")
-        board[x+1][y-1] = piece
-        piece.position_x += 1
-        piece.position_y -= 1
-    else:
-        pass
-    return board
-
-
-
-
-class Game(object):
-    def __init__(self): pass
-
-if __name__ == "__main__":
+#==============================================================================
+# Calculate cost
+def calculate_cost(s):
+    # calculate f1, f5 of the evaluation function
+#    if s in cost_dict:
+#        if turn in cost_dict[s]:
+#            return cost_dict[s][turn]
     try:
-        curr_player = sys.argv[1]
-        initial_board = sys.argv[2]
-        time = sys.argv[3]
+        cost_count += 1
+        return cost_dict[s][turn]
     except:
-        curr_player = "w"
-        initial_board = "RNBQKBNRPPPPPPPP................................pppppppprnbqkbnr"
-        time = 10
+        f = [0,0,0,0,0]
+    #    squares_controlled = []
+        for i, piece in enumerate(s):
+            r, c = i/8, i%8
+            if piece in player[turn]:
+                f[4] += value[piece]
+                possible_moves = possible_move[piece](r, c)
+                for r_n,c_n in possible_moves:
+                    if is_valid(s,turn,piece,r,c,r_n,c_n):
+                        f[0] += 2
+                continue
+            if piece in player[change_turn(turn)]:
+                f[4] -= value[piece]
+                possible_moves = possible_move[piece](r, c)
+                for r_n,c_n in possible_moves:
+                    if is_valid(s,change_turn(turn),piece,r,c,r_n,c_n):
+                        f[0] -= 1
+        return sum(f)
+#==============================================================================
 
-    b = Board(initial_board)
-    print b
-#    move_down_right(b.board, b[1][4])
-    W = Player("w", b.board)
-    i = W.move_parakeet(b.board,b[1][4])
-    for x in i:
-        print Board(x)
+#==============================================================================
+# Mini-Max with alpha beta pruning
+def minimax_decision(s, turn, h=3):
+    if s in move_dict:
+        if turn in move_dict[s]:
+            return move_dict[s][turn]
+    s_p, m = successor(s, turn)
+    return max([(x[0], x[1], min_value(x[0], change_turn(turn), h-1, -inf, inf)) for x in zip(s_p, m)], key = lambda item: item[2])[:2]
+#    return max(map(lambda x: (x[0], x[1], min_value(x[0], turn, h, -inf, inf)), zip(s, m)), key = lambda k: k[2])[:2]
+
+def max_value(s, t, h, alpha=-inf, beta=inf):
+#    print_board(s)
+    if h == 0:
+        return calculate_cost(s)
+    for s_prime in successor(s, t)[0]:
+        alpha = max(alpha, min_value(s_prime, change_turn(t), h-1, alpha, beta))
+        if alpha >= beta:
+            return alpha
+    return alpha
+#    return max([min_value(s_prime, change_turn(t), h-1) for s_prime in successor(s, t)[0]])
+
+def min_value(s, t, h, alpha=-inf, beta=inf):
+#    print_board(s)
+    if h == 0:
+        return calculate_cost(s)
+    for s_prime in successor(s, t)[0]:
+        beta = min(beta, max_value(s_prime, change_turn(t), h-1, alpha, beta))
+        if alpha >= beta:
+            return beta
+    return beta
+#    return min([max_value(s_prime, change_turn(t), h-1) for s_prime in successor(s, t)[0]])
+
+def change_turn(turn):
+    return "b" if turn == "w" else "w"
+
+#==============================================================================
+
+#######################################################################################
+# These are just functions to print results. I won't need them to run the script.
+def print_board(s):
+    print "\n".join([" ".join(s[i:i+8]) for i in range(0,64,8)])
+
+def print_successors(s):
+    for board in successor(s, turn)[0]:
+        print_board(board)
+        print
+
+def next(s, piece, r, c, r_n, c_n):
+    s_prime = s[:r*8+c] + '.' + s[r*8+c + 1:]
+    board = s_prime[:r_n*8 + c_n] + piece + s_prime[r_n*8 + c_n+1:]
+    print_board(board)
+    print
+    return board
+#
+#######################################################################################
+turn, S0, time = sys.argv[1], sys.argv[2], float(sys.argv[3])
+possible_move = {'K':K,'Q':Q,'R':R,'B':B,'N':N,'P':P,'k':K,'q':Q,'r':R,'b':B,'n':N,'p':p}
+player = {'w':['K','Q','R','B','N','P'], 'b':['k','q','r','b','n','p']}
+value = {'K':200,'Q':9,'R':5,'B':3,'N':3,'P':1,'k':200,'q':9,'r':5,'b':3,'n':3,'p':1}
+name = {'K':"Kingfisher",'Q':"Quetzal",'R':"Robin",'B':"Blue jay",'N':"Nighthawk",'P':"Parakeet",
+        'k':"kingfisher",'q':"quetzal",'r':"robin",'b':"blue jay",'n':"nighthawk",'p':"parakeet"}
+
+#try:
+#    with open("succ_dict.txt") as f:
+#        succ_dict = cPickle.load(f)
+#except:
+succ_dict = {}
+succ_count = 0
+#try:
+#    with open("cost_dict.txt") as f:
+#        cost_dict = cPickle.load(f)
+#except:
+cost_dict = {}
+cost_count = 0
+try:
+    with open("move_dict.txt") as f:
+        move_dict = cPickle.load(f)
+except:
+    move_dict = {}
+
+h = 4
+for i in range(1, h+1):
+#    if
+    S_next, M_next = minimax_decision(S0, turn, i)
+    piece, r, c, r_n, c_n = M_next
+    print "Thinking! Please wait...\n"
+    print "Hmm, I'd recommend moving the {} at row {} column {} to row {} column {}.".format(name[piece],r,c,r_n,c_n)
+    print "New board:"
+    print S_next
+    print
+
+move_dict[S0] = {}
+move_dict[S0][turn] = (S_next, M_next)
+#cPickle.dump(succ_dict, open('succ_dict.txt', 'w'))
+#cPickle.dump(cost_dict, open('cost_dict.txt', 'w'))
+cPickle.dump(move_dict, open('move_dict.txt', 'w'))
+
+#######################################################################################
+# Remove these lines later
+print_board(S0)
+print("")
+print_board(S_next)
+
+#succ_shelve = shelve.open('succ.db', writeback = True)
+#cost_shelve = shelve.open('cost.db', writeback = True)
+#move_shelve = shelve.open('move.db', writeback = True)
+#move_shelve[S0] = (S_next, M_next)
+#succ_shelve.close()
+#cost_shelve.close()
+#move_shelve.close()
+#######################################################################################

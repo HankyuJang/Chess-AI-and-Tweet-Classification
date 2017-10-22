@@ -1,7 +1,6 @@
 import sys
 import cPickle
-import shelve
-
+import timeit
 def p(r,c):
     return [(r,c) for r,c in [(r-1,c),(r-1,c-1),(r-1,c+1),(r-2,c)] if in_board(r,c)] if r==6 else [(r,c) for r,c in [(r-1,c),(r-1,c-1),(r-1,c+1)] if in_board(r,c)]
 def P(r,c):
@@ -31,11 +30,13 @@ def next_board(s, piece, r, c, r_n, c_n):
 def loc(s, r, c):
     return s[r*8 + c]
 
+#succ_count = 0
+#cost_count = 0
 def successor(s, t):
     if s in succ_dict:
         if t in succ_dict[s]:
-            global succ_count
-            succ_count += 1
+#            global succ_count
+#            succ_count += 1
 #            print "Successor accessed from dictionary"
             return succ_dict[s][t]
     board_list = []
@@ -53,7 +54,7 @@ def successor(s, t):
                 if is_valid(s, t, piece, r, c, r_n, c_n):
                     boards.append(next_board(s, piece, r, c, r_n, c_n))
                     move_list.append((piece, r, c, r_n, c_n))
-                    f[0] += 2
+                    f[0] += 1
             board_list.extend(boards)
         if turn == t:
             if piece in player[change_turn(t)]:
@@ -72,8 +73,8 @@ def successor(s, t):
 def is_valid(s, turn, piece, r, c, r_n, c_n):
     if turn=='w':
         if piece=='P': # Check the 'P' in advance
-            if r_n-r == 1 and c_n==c: # Check one-step move
-                if loc(s, r_n, c_n) != '.':
+            if r_n-r==1 and c_n==c: # Check one-step move
+                if loc(s,r_n,c_n) != '.':
                     return False
             elif r_n-r == 2: # Check the inital two-step move
                 if loc(s,2,c) != '.':
@@ -81,12 +82,12 @@ def is_valid(s, turn, piece, r, c, r_n, c_n):
             elif c != c_n: # Check the attack move
                 if loc(s,r_n,c_n) not in player['b']:
                     return False
-        if loc(s, r_n, c_n) in player['w']:
+        if loc(s,r_n,c_n) in player['w']:
             return False
     elif turn=='b':
         if piece=='p': # Check the 'P' in advance
-            if r-r_n == 1 and c_n==c: # Check one-step move
-                if loc(s, r_n, c_n) != '.':
+            if r-r_n==1 and c_n==c: # Check one-step move
+                if loc(s,r_n,c_n) != '.':
                     return False
             elif r-r_n == 2: # Check the inital two-step move
                 if loc(s,5,c) != '.':
@@ -94,7 +95,7 @@ def is_valid(s, turn, piece, r, c, r_n, c_n):
             elif c != c_n: # Check the attack move
                 if loc(s,r_n,c_n) not in player['w']:
                     return False
-        if loc(s, r_n, c_n) in player['b']:
+        if loc(s,r_n,c_n) in player['b']:
             return False
 
     if piece=='R' or piece=='Q' or piece=='r' or piece=='q':
@@ -126,7 +127,8 @@ def calculate_cost(s):
 #        if turn in cost_dict[s]:
 #            return cost_dict[s][turn]
     try:
-        cost_count += 1
+#        global cost_count
+#        cost_count += 1
         return cost_dict[s][turn]
     except:
         f = [0,0,0,0,0]
@@ -138,8 +140,8 @@ def calculate_cost(s):
                 possible_moves = possible_move[piece](r, c)
                 for r_n,c_n in possible_moves:
                     if is_valid(s,turn,piece,r,c,r_n,c_n):
-                        f[0] += 2
-                continue
+                        f[0] += 1
+#                continue
             if piece in player[change_turn(turn)]:
                 f[4] -= value[piece]
                 possible_moves = possible_move[piece](r, c)
@@ -148,36 +150,61 @@ def calculate_cost(s):
                         f[0] -= 1
         return sum(f)
 #==============================================================================
-
+#move_dict[S0] = {}
+#move_dict[S0][turn] = (S_next, M_next)
 #==============================================================================
 # Mini-Max with alpha beta pruning
 def minimax_decision(s, turn, h=3):
-    if s in move_dict:
-        if turn in move_dict[s]:
-            return move_dict[s][turn]
+#    if s in move_dict:
+#        if turn in move_dict[s]:
+#            return min_value(move_dict[s][turn], change_turn(turn), h-1, -inf, inf)
     s_p, m = successor(s, turn)
-    return max([(x[0], x[1], min_value(x[0], change_turn(turn), h-1, -inf, inf)) for x in zip(s_p, m)], key = lambda item: item[2])[:2]
+    return max([(x[0], x[1], min_value(x[0],change_turn(turn),h-1,-inf,inf)) for x in zip(s_p, m)], key = lambda item: item[2])[:2]
 #    return max(map(lambda x: (x[0], x[1], min_value(x[0], turn, h, -inf, inf)), zip(s, m)), key = lambda k: k[2])[:2]
 
 def max_value(s, t, h, alpha=-inf, beta=inf):
-#    print_board(s)
     if h == 0:
         return calculate_cost(s)
+    if s in move_dict:
+        if turn in move_dict[s]:
+#            print ("max", s, move_dict[s][turn], change_turn(t), h-1, alpha, beta)
+            return min_value(move_dict[s][turn], change_turn(t), h-1, alpha, beta)
+    print_board(s)
+    best_child = None
     for s_prime in successor(s, t)[0]:
-        alpha = max(alpha, min_value(s_prime, change_turn(t), h-1, alpha, beta))
+        val = min_value(s_prime, change_turn(t), h-1, alpha, beta)
+        if alpha < val:
+            alpha = val
+            best_child = s_prime
         if alpha >= beta:
+            move_dict[s] = {}
+            move_dict[s][turn] = best_child
             return alpha
+    move_dict[s] = {}
+    move_dict[s][turn] = best_child
     return alpha
 #    return max([min_value(s_prime, change_turn(t), h-1) for s_prime in successor(s, t)[0]])
 
 def min_value(s, t, h, alpha=-inf, beta=inf):
-#    print_board(s)
     if h == 0:
         return calculate_cost(s)
+    if s in move_dict:
+        if turn in move_dict[s]:
+#            print ("min", s, move_dict[s][turn], change_turn(t), h-1, alpha, beta)
+            return max_value(move_dict[s][turn], change_turn(t), h-1, alpha, beta)
+    print_board(s)
+    best_child = None
     for s_prime in successor(s, t)[0]:
-        beta = min(beta, max_value(s_prime, change_turn(t), h-1, alpha, beta))
+        val = max_value(s_prime, change_turn(t), h-1, alpha, beta)
+        if val < beta:
+            beta = val
+            best_child = s_prime
         if alpha >= beta:
+            move_dict[s] = {}
+            move_dict[s][turn] = best_child
             return beta
+    move_dict[s] = {}
+    move_dict[s][turn] = best_child
     return beta
 #    return min([max_value(s_prime, change_turn(t), h-1) for s_prime in successor(s, t)[0]])
 
@@ -191,8 +218,8 @@ def change_turn(turn):
 def print_board(s):
     print "\n".join([" ".join(s[i:i+8]) for i in range(0,64,8)])
 
-def print_successors(s):
-    for board in successor(s, turn)[0]:
+def print_successors(s, t=turn):
+    for board in successor(s, t)[0]:
         print_board(board)
         print
 
@@ -204,7 +231,7 @@ def next(s, piece, r, c, r_n, c_n):
     return board
 #
 #######################################################################################
-turn, S0, time = sys.argv[1], sys.argv[2], float(sys.argv[3])
+turn, S0, time_limit = sys.argv[1], sys.argv[2], float(sys.argv[3])
 possible_move = {'K':K,'Q':Q,'R':R,'B':B,'N':N,'P':P,'k':K,'q':Q,'r':R,'b':B,'n':N,'p':p}
 player = {'w':['K','Q','R','B','N','P'], 'b':['k','q','r','b','n','p']}
 value = {'K':200,'Q':9,'R':5,'B':3,'N':3,'P':1,'k':200,'q':9,'r':5,'b':3,'n':3,'p':1}
@@ -216,35 +243,30 @@ name = {'K':"Kingfisher",'Q':"Quetzal",'R':"Robin",'B':"Blue jay",'N':"Nighthawk
 #        succ_dict = cPickle.load(f)
 #except:
 succ_dict = {}
-succ_count = 0
 #try:
 #    with open("cost_dict.txt") as f:
 #        cost_dict = cPickle.load(f)
 #except:
 cost_dict = {}
-cost_count = 0
 try:
     with open("move_dict.txt") as f:
         move_dict = cPickle.load(f)
 except:
     move_dict = {}
 
+#S0 = "RNBQKBNRPPPP.PPP............P......p............ppp.pppprnbqkbnr"
 h = 4
+init_time = timeit.default_timer()
 for i in range(1, h+1):
-#    if
     S_next, M_next = minimax_decision(S0, turn, i)
     piece, r, c, r_n, c_n = M_next
-    print "Thinking! Please wait...\n"
-    print "Hmm, I'd recommend moving the {} at row {} column {} to row {} column {}.".format(name[piece],r,c,r_n,c_n)
-    print "New board:"
-    print S_next
-    print
+    print "Thinking! Please wait...\nHmm, I'd recommend moving the {} at row {} column {} to row {} column {}.\nNew board:\n{}".format(name[piece],r,c,r_n,c_n,S_next)
+    if timeit.default_timer() - init_time > time_limit:
+        print "Break"
+        break
 
-move_dict[S0] = {}
-move_dict[S0][turn] = (S_next, M_next)
-#cPickle.dump(succ_dict, open('succ_dict.txt', 'w'))
-#cPickle.dump(cost_dict, open('cost_dict.txt', 'w'))
-cPickle.dump(move_dict, open('move_dict.txt', 'w'))
+with open('move_dict.txt', 'w') as f:
+    f.write(cPickle.dumps(move_dict))
 
 #######################################################################################
 # Remove these lines later

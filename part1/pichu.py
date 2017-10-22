@@ -49,7 +49,8 @@ def successor(s, t):
             boards = []
             for r_n, c_n in possible_moves:
                 if is_valid(s, t, piece, r, c, r_n, c_n):
-                    boards.append(next_board(s, piece, r, c, r_n, c_n))
+                    # boards.append(next_board(s, piece, r, c, r_n, c_n))
+                    boards.append(to_queen(next_board(s,piece,r,c,r_n,c_n), turn))
                     move_list.append((piece, r, c, r_n, c_n))
                     f[1] += 1
                     places_checked.union((r_n, c_n))
@@ -70,6 +71,17 @@ def successor(s, t):
         cost_dict[s][turn] = sum(f)
     return (board_list, move_list)
 
+def to_queen(s, turn):
+    if turn == 'w':
+        for i, piece in enumerate(s[-8:]):
+            if piece == 'P':
+                s = s[:-8+i] + 'Q' + s[-7+i:]
+    else:
+        for i, piece in enumerate(s[:8]):
+            if piece == 'p':
+                s = s[:i] + 'q' + s[1+i:]
+    return s
+
 def is_valid(s, turn, piece, r, c, r_n, c_n):
     if turn=='w':
         if piece=='P': # Check the 'P' in advance
@@ -77,7 +89,11 @@ def is_valid(s, turn, piece, r, c, r_n, c_n):
                 if loc(s,r_n,c_n) != '.':
                     return False
             elif r_n-r == 2: # Check the inital two-step move
-                if loc(s,3,c) != '.':
+                if r != 1:
+                    return False
+                elif loc(s,2,c) != '.':
+                    return False
+                elif loc(s,3,c) != '.':
                     return False
             elif c != c_n: # Check the attack move
                 if loc(s,r_n,c_n) not in player['b']:
@@ -90,7 +106,11 @@ def is_valid(s, turn, piece, r, c, r_n, c_n):
                 if loc(s,r_n,c_n) != '.':
                     return False
             elif r-r_n == 2: # Check the inital two-step move
-                if loc(s,4,c) != '.':
+                if r != 6: # If not in the initial position, you can't make 2 step move
+                    return False
+                elif loc(s,4,c) != '.':
+                    return False
+                elif loc(s,5,c) != '.':
                     return False
             elif c != c_n: # Check the attack move
                 if loc(s,r_n,c_n) not in player['w']:

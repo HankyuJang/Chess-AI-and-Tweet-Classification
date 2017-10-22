@@ -27,7 +27,7 @@ But if there's another MAX's piece that can attack on (1,1) then we will count t
     - Blue jay - 3 points
     - Robin - 5 points
     - Quetzal - 9 points
-    - Kingfisher - 99999 points
+    - Kingfisher - 100,000 points
 
 ### Usage
 

@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import sys
 import cPickle
 import timeit
@@ -232,6 +233,7 @@ value = {'K':500,'Q':9,'R':5,'B':3,'N':3,'P':1,'k':500,'q':9,'r':5,'b':3,'n':3,'
 name = {'K':"Kingfisher",'Q':"Quetzal",'R':"Robin",'B':"Blue jay",'N':"Nighthawk",'P':"Parakeet",
         'k':"kingfisher",'q':"quetzal",'r':"robin",'b':"blue jay",'n':"nighthawk",'p':"parakeet"}
 
+init_time = timeit.default_timer()
 succ_dict = {}
 cost_dict = {}
 try:
@@ -241,11 +243,14 @@ except:
     move_dict = {}
 
 h = 3
-init_time = timeit.default_timer()
-for i in range(h, 20, 3):
+for i in range(1, 20, h):
     S_next, M_next = minimax_decision(S0, turn, i)
     piece, r, c, r_n, c_n = M_next
-    print "Thinking! Please wait...\nHmm, I'd recommend moving the {} at row {} column {} to row {} column {}.\nNew board:\n{}".format(name[piece],r+1,c+1,r_n+1,c_n+1,S_next)
+#    print "Hmm, I'd recommend moving the {} at row {} column {} to row {} column {}.\nNew board:\n{}".format(name[piece],r+1,c+1,r_n+1,c_n+1,S_next)
+    print "Thinking! Please wait..."
+    print("Hmm, I'd recommend moving the {} at row {} column {} to row {} column {}.".format(name[piece],r+1,c+1,r_n+1,c_n+1))
+    print("New board:")
+    print(S_next)
     cPickle.dump(move_dict, open('move_dict.txt', 'w'))
     if timeit.default_timer() - init_time > time_limit:
         break

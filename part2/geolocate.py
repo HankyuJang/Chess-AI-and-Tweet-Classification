@@ -1,10 +1,10 @@
+#Report given in Readme File
 import sys
 import re
 from math import log
 def readfile(infile):
     global train_tweet_count
-    word_dict = {}
-    hashtag_dict = {}
+    word_dict = {}    
     city_dict={}
     with open(infile, 'r') as f:
         for line in f:
@@ -17,11 +17,9 @@ def readfile(infile):
             else:
                 city_dict[city]['Count_Tweets'] = city_dict[city]['Count_Tweets'] + 1            
             word_list = get_words(tweet) # Get only the lowercase words
-            city_dict[city]['Count_Words']=city_dict[city]['Count_Words'] + len(word_list)
-            hashtag_list = get_hashtags(tweet) # Get hashtags
-            fill_dictionary(city, word_list, word_dict) # Fill in the word_dict
-            fill_dictionary(city, hashtag_list, hashtag_dict) # Fill in the hashtag_dict
-    return word_dict, hashtag_dict, city_dict
+            city_dict[city]['Count_Words']=city_dict[city]['Count_Words'] + len(word_list)            
+            fill_dictionary(city, word_list, word_dict) # Fill in the word_dict            
+    return word_dict,  city_dict
 
 
 def readtestfile(infile,train_words,cities):
@@ -79,8 +77,7 @@ def fill_dictionary(city, word_list, word_dict):
             word_dict[word]['Cities'][city] = 1
             word_dict[word]['Total_Count']=1
 
-def get_hashtags(tweet):
-    return [word[1:].lower() for word in tweet.split() if word.startswith("#")]
+
 
 def get_words(tweet):
     return [word.lower() for word in re.split(r"[\W_]", tweet) if word != '']
@@ -92,7 +89,7 @@ testing_file = sys.argv[2]
 output_file = sys.argv[3]
 train_tweet_count=0
 #Making Words, cities and hashtag dic
-words, hashtag, cities = readfile(training_file)
+words, cities = readfile(training_file)
 
 #Filling up 0 for cities not there for word
 for word in words:

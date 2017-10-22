@@ -137,7 +137,6 @@ def calculate_cost(s):
                     if is_valid(s,turn,piece,r,c,r_n,c_n):
                         f[1] += 1
                         places_checked.union((r_n, c_n))
-#                continue
             if piece in player[change_turn(turn)]:
                 f[0] -= value[piece]
                 possible_moves = possible_move[piece](r, c)
@@ -151,9 +150,6 @@ def calculate_cost(s):
 #==============================================================================
 # Mini-Max with alpha beta pruning
 def minimax_decision(s, turn, h=3):
-#    if s in move_dict:
-#        if turn in move_dict[s]:
-#            return min_value(move_dict[s][turn], change_turn(turn), h-1,float('-inf'),float('inf')
     s_p, m = successor(s, turn)
     return max([(x[0], x[1], min_value(x[0],change_turn(turn),h-1,float('-inf'),float('inf'))) for x in zip(s_p, m)], key = lambda item: item[2])[:2]
 #    return max(map(lambda x: (x[0], x[1], min_value(x[0], turn, h, -inf, inf)), zip(s, m)), key = lambda k: k[2])[:2]
@@ -163,9 +159,7 @@ def max_value(s, t, h, alpha=float('-inf'), beta=float('inf')):
         return calculate_cost(s)
     if s in move_dict:
         if 'max' in move_dict[s]:
-#            print ("max", s, move_dict[s][turn], change_turn(t), h-1, alpha, beta)
             return min_value(move_dict[s]['max'], change_turn(t), h-1, alpha, beta)
-#    print_board(s)
     best_child = None
     for s_prime in successor(s, t)[0]:
         val = min_value(s_prime, change_turn(t), h-1, alpha, beta)
@@ -187,9 +181,7 @@ def min_value(s, t, h, alpha=float('-inf'), beta=float('inf')):
         return calculate_cost(s)
     if s in move_dict:
         if 'min' in move_dict[s]:
-#            print ("min", s, move_dict[s][turn], change_turn(t), h-1, alpha, beta)
             return max_value(move_dict[s]['min'], change_turn(t), h-1, alpha, beta)
-#    print_board(s)
     best_child = None
     for s_prime in successor(s, t)[0]:
         val = max_value(s_prime, change_turn(t), h-1, alpha, beta)

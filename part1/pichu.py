@@ -37,7 +37,7 @@ def successor(s, t):
             return succ_dict[s][t]
     board_list = []
     move_list = []
-    f = [0, 0, 0, 0, 0]
+    f = [0, 0, 0]
     places_checked = set()
     global turn
     for i, piece in enumerate(s):
@@ -62,7 +62,7 @@ def successor(s, t):
                     if is_valid(s, change_turn(t), piece, r, c, r_n, c_n):
                         f[1] -= 1
                         places_checked.difference((r_n, c_n))
-    f[2] = len(places_checked)*2
+    f[2] = len(places_checked)*3
     succ_dict[s] = {}
     succ_dict[s][t] = (board_list, move_list)
     if t == turn:
@@ -122,7 +122,7 @@ def is_valid(s, turn, piece, r, c, r_n, c_n):
 #==============================================================================
 # Calculate cost
 def calculate_cost(s):
-    # calculate f1, f5 of the evaluation function
+    # calculate f1,f2,f3 of the evaluation function
     try:
         return cost_dict[s][turn]
     except:
@@ -145,11 +145,9 @@ def calculate_cost(s):
                     if is_valid(s,change_turn(turn),piece,r,c,r_n,c_n):
                         f[1] -= 1
                         places_checked.difference((r_n, c_n))
-        f[2] = len(places_checked)*2
+        f[2] = len(places_checked)*3
         return sum(f)
-#==============================================================================
-#move_dict[S0] = {}
-#move_dict[S0][turn] = (S_next, M_next)
+
 #==============================================================================
 # Mini-Max with alpha beta pruning
 def minimax_decision(s, turn, h=3):
@@ -193,7 +191,6 @@ def min_value(s, t, h, alpha=float('-inf'), beta=float('inf')):
             return max_value(move_dict[s]['min'], change_turn(t), h-1, alpha, beta)
 #    print_board(s)
     best_child = None
-    succ = successor(s, t)[0]
     for s_prime in successor(s, t)[0]:
         val = max_value(s_prime, change_turn(t), h-1, alpha, beta)
         if val < beta:
@@ -212,25 +209,14 @@ def min_value(s, t, h, alpha=float('-inf'), beta=float('inf')):
 def change_turn(t):
     return "b" if t == "w" else "w"
 
-#==============================================================================
-
-#######################################################################################
-# These are just functions to print results. I won't need them to run the script.
 def print_board(s):
     print "\n".join([" ".join(s[i:i+8]) for i in range(0,64,8)])
-
-def next(s, piece, r, c, r_n, c_n):
-    s_prime = s[:r*8+c] + '.' + s[r*8+c + 1:]
-    board = s_prime[:r_n*8 + c_n] + piece + s_prime[r_n*8 + c_n+1:]
-    print_board(board)
-    print
-    return board
 #
 #######################################################################################
 turn, S0, time_limit = sys.argv[1], sys.argv[2], float(sys.argv[3])
 possible_move = {'K':K,'Q':Q,'R':R,'B':B,'N':N,'P':P,'k':K,'q':Q,'r':R,'b':B,'n':N,'p':p}
 player = {'w':['K','Q','R','B','N','P'], 'b':['k','q','r','b','n','p']}
-value = {'K':200,'Q':9,'R':5,'B':3,'N':3,'P':1,'k':200,'q':9,'r':5,'b':3,'n':3,'p':1}
+value = {'K':500,'Q':9,'R':5,'B':3,'N':3,'P':1,'k':500,'q':9,'r':5,'b':3,'n':3,'p':1}
 name = {'K':"Kingfisher",'Q':"Quetzal",'R':"Robin",'B':"Blue jay",'N':"Nighthawk",'P':"Parakeet",
         'k':"kingfisher",'q':"quetzal",'r':"robin",'b':"blue jay",'n':"nighthawk",'p':"parakeet"}
 
@@ -242,17 +228,15 @@ try:
 except:
     move_dict = {}
 
-#S0 = "RNBQKBNRPPPP.PPP............P......p............ppp.pppprnbqkbnr"
 h = 3
 init_time = timeit.default_timer()
 for i in range(h, 20, 3):
     S_next, M_next = minimax_decision(S0, turn, i)
     piece, r, c, r_n, c_n = M_next
-    print "Thinking! Please wait...\nHmm, I'd recommend moving the {} at row {} column {} to row {} column {}.\nNew board:\n{}".format(name[piece],r,c,r_n,c_n,S_next)
+    print "Thinking! Please wait...\nHmm, I'd recommend moving the {} at row {} column {} to row {} column {}.\nNew board:\n{}".format(name[piece],r+1,c+1,r_n+1,c_n+1,S_next)
+    cPickle.dump(move_dict, open('move_dict.txt', 'w'))
     if timeit.default_timer() - init_time > time_limit:
         break
-
-cPickle.dump(move_dict, open('move_dict.txt', 'w'))
 
 #######################################################################################
 # Remove these lines later

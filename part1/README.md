@@ -14,8 +14,6 @@ where
 
 and
 
-<a href="https://www.codecogs.com/eqnedit.php?latex=w&space;=&space;(1,100,3,3,1)&space;\in&space;R^5" target="_blank"><img src="https://latex.codecogs.com/gif.latex?w&space;=&space;(1,100,3,3,1)&space;\in&space;R^5" title="w = (1,100,3,3,1) \in R^5" /></a>
-
 <a href="https://www.codecogs.com/eqnedit.php?latex=w&space;=&space;(1,1,3)&space;\in&space;R^3" target="_blank"><img src="https://latex.codecogs.com/gif.latex?w&space;=&space;(1,1,3)&space;\in&space;R^3" title="w = (1,1,3) \in R^3" /></a>
 
 One interesting thing about `f[2]` is that, if say MAX's bishop can attack on (1,1) and MIN's bishop can also attack on (1,1) then it will be "0".

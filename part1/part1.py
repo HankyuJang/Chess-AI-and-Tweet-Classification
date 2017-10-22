@@ -77,7 +77,7 @@ def is_valid(s, turn, piece, r, c, r_n, c_n):
                 if loc(s,r_n,c_n) != '.':
                     return False
             elif r_n-r == 2: # Check the inital two-step move
-                if loc(s,2,c) != '.':
+                if loc(s,3,c) != '.':
                     return False
             elif c != c_n: # Check the attack move
                 if loc(s,r_n,c_n) not in player['b']:
@@ -90,7 +90,7 @@ def is_valid(s, turn, piece, r, c, r_n, c_n):
                 if loc(s,r_n,c_n) != '.':
                     return False
             elif r-r_n == 2: # Check the inital two-step move
-                if loc(s,5,c) != '.':
+                if loc(s,4,c) != '.':
                     return False
             elif c != c_n: # Check the attack move
                 if loc(s,r_n,c_n) not in player['w']:

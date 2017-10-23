@@ -33,25 +33,19 @@ The fourth evaluation function that we wanted to implement was the Pawn Structur
 - The Algorithm 
 
 We are using Mini-Max Algorithm with alpha beta pruning along with some additional features
-    - Our algorithm works in a Iterative Deepening Depth First Search fashion
-        
-    - To make it work faster, we stored the successors of each state in a dictionary, so when we increase the max_depth of our algorithm        we can avoid finding successors again and again
-    
-    - We also calculated the evaluation of a state while finding its successors and stored it in a dictionary. This way we were avoiding        looping through the board since we were already doing that while finding it's successors.
-    
-    - We started our algorithm from height 3 which could be evaluated within a couple of seconds. So at first, we run minimax normally          and record for each state which is its 'max' successor or 'min' successor, we're storing this in a dictionary. 
-    
-    - Now, for the second time we increment the height by 3, ie, now run to a depth 6. However, this time for the first max node we             evaluate all it's successor and for each successor onwards we just access its best child, ie, max node or min node. However,            after height 3, we haven't explored anything yet, so we explore again normally for all its successors using minimax with alpha          beta pruning to height and again store each node's best successor, ie, max or min node.  
-    
-    - The algorithm keeps incrementing the height by 3 until the time ends.
-    
-    - For each iteration of height, we also save our dictionary to a file which can used in the next time run of the program
+
+- Our algorithm works in a Iterative Deepening Depth First Search fashion
+- To make it work faster, we stored the successors of each state in a dictionary, so when we increase the max_depth of our algorithm        we can avoid finding successors again and again
+- We also calculated the evaluation of a state while finding its successors and stored it in a dictionary. This way we were avoiding        looping through the board since we were already doing that while finding it's successors.
+- We started our algorithm from height 3 which could be evaluated within a couple of seconds. So at first, we run minimax normally          and record for each state which is its 'max' successor or 'min' successor, we're storing this in a dictionary. 
+- Now, for the second time we increment the height by 3, ie, now run to a depth 6. However, this time for the first max node we             evaluate all it's successor and for each successor onwards we just access its best child, ie, max node or min node. However,            after height 3, we haven't explored anything yet, so we explore again normally for all its successors using minimax with alpha          beta pruning to height and again store each node's best successor, ie, max or min node.  
+- The algorithm keeps incrementing the height by 3 until the time ends.
+- For each iteration of height, we also save our dictionary to a file which can used in the next time run of the program
     
     
 - Other efforts
     - We experimented a lot with what height should we start from and how much we increase 
     - We also tried storing cost and succ dictionary to files however, it was huge and didn't work well as we expected
-
 
 ### Usage
 

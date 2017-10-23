@@ -255,7 +255,7 @@ print("Hmm, I'd recommend moving the {} at row {} column {} to row {} column {}.
 print("New board:")
 print(S_next)
 
-h = 2
+h = 3
 for i in range(3, 15, h):
     S_next, M_next = minimax_decision(S0, turn, i)
     piece, r, c, r_n, c_n = M_next

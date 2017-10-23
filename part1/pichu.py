@@ -237,7 +237,7 @@ player = {'w':['K','Q','R','B','N','P'], 'b':['k','q','r','b','n','p']}
 value = {'K':1000,'Q':9,'R':5,'B':3,'N':3,'P':1,'k':1000,'q':9,'r':5,'b':3,'n':3,'p':1}
 name = {'K':"Kingfisher",'Q':"Quetzal",'R':"Robin",'B':"Blue jay",'N':"Nighthawk",'P':"Parakeet",
         'k':"kingfisher",'q':"quetzal",'r':"robin",'b':"blue jay",'n':"nighthawk",'p':"parakeet"}
-weight = [10, 2, 5]
+weight = [10, 1, 1]
 
 print "Thinking! Please wait...\n"
 init_time = timeit.default_timer()
@@ -255,7 +255,7 @@ print("Hmm, I'd recommend moving the {} at row {} column {} to row {} column {}.
 print("New board:")
 print(S_next)
 
-h = 2
+h = 3
 for i in range(3, 15, h):
     S_next, M_next = minimax_decision(S0, turn, i)
     piece, r, c, r_n, c_n = M_next

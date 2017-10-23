@@ -44,7 +44,7 @@ def successor(s, t):
     for i, piece in enumerate(s):
         r, c = i/8, i%8
         if piece in player[t]:
-            f[0] += value[piece]
+            f[0] += value[piece]*weight[0]
             possible_moves = possible_move[piece](r, c)
             # board_list.extend([next_board(s,piece,r,c,r_n,c_n) for r_n,c_n in possible_moves if is_valid(s,turn,piece,r,c,r_n,c_n)])
             boards = []
@@ -53,18 +53,18 @@ def successor(s, t):
                     # boards.append(next_board(s, piece, r, c, r_n, c_n))
                     boards.append(to_queen(next_board(s,piece,r,c,r_n,c_n), turn))
                     move_list.append((piece, r, c, r_n, c_n))
-                    f[1] += 1
+                    f[1] += 1*weight[1]
                     places_checked.union((r_n, c_n))
             board_list.extend(boards)
         if turn == t:
             if piece in player[change_turn(t)]:
-                f[0] -= value[piece]
+                f[0] -= value[piece]*weight[0]
                 possible_moves = possible_move[piece](r, c)
                 for r_n, c_n in possible_moves:
                     if is_valid(s, change_turn(t), piece, r, c, r_n, c_n):
-                        f[1] -= 1
+                        f[1] -= 1*weight[1]
                         places_checked.difference((r_n, c_n))
-    f[2] = len(places_checked)*3
+    f[2] = len(places_checked)*weight[2]
     succ_dict[s] = {}
     succ_dict[s][t] = (board_list, move_list)
     if t == turn:
@@ -152,27 +152,27 @@ def calculate_cost(s):
         for i, piece in enumerate(s):
             r, c = i/8, i%8
             if piece in player[turn]:
-                f[0] += value[piece]
+                f[0] += value[piece]*weight[0]
                 possible_moves = possible_move[piece](r, c)
                 for r_n,c_n in possible_moves:
                     if is_valid(s,turn,piece,r,c,r_n,c_n):
-                        f[1] += 1
+                        f[1] += 1*weight[1]
                         places_checked.union((r_n, c_n))
             if piece in player[change_turn(turn)]:
-                f[0] -= value[piece]
+                f[0] -= value[piece]*weight[0]
                 possible_moves = possible_move[piece](r, c)
                 for r_n,c_n in possible_moves:
                     if is_valid(s,change_turn(turn),piece,r,c,r_n,c_n):
-                        f[1] -= 1
+                        f[1] -= 1*weight[1]
                         places_checked.difference((r_n, c_n))
-        f[2] = len(places_checked)*3
+        f[2] = len(places_checked)*weight[2]
         return sum(f)
 
 #==============================================================================
 # Mini-Max with alpha beta pruning
-def minimax_decision(s, turn, h=3):
-    s_p, m = successor(s, turn)
-    return max([(x[0], x[1], min_value(x[0],change_turn(turn),h-1,float('-inf'),float('inf'))) for x in zip(s_p, m)], key = lambda item: item[2])[:2]
+def minimax_decision(s, t, h=3):
+    s_p, m = successor(s, t)
+    return max([(x[0], x[1], min_value(x[0],change_turn(t),h-1,float('-inf'),float('inf'))) for x in zip(s_p, m)], key = lambda item: item[2])[:2]
 #    return max(map(lambda x: (x[0], x[1], min_value(x[0], turn, h, -inf, inf)), zip(s, m)), key = lambda k: k[2])[:2]
 
 def max_value(s, t, h, alpha=float('-inf'), beta=float('inf')):
@@ -224,15 +224,17 @@ def change_turn(t):
 
 def print_board(s):
     print "\n".join([" ".join(s[i:i+8]) for i in range(0,64,8)])
-#
+
 #######################################################################################
 turn, S0, time_limit = sys.argv[1], sys.argv[2], float(sys.argv[3])
 possible_move = {'K':K,'Q':Q,'R':R,'B':B,'N':N,'P':P,'k':K,'q':Q,'r':R,'b':B,'n':N,'p':p}
 player = {'w':['K','Q','R','B','N','P'], 'b':['k','q','r','b','n','p']}
-value = {'K':500,'Q':9,'R':5,'B':3,'N':3,'P':1,'k':500,'q':9,'r':5,'b':3,'n':3,'p':1}
+value = {'K':1000,'Q':9,'R':5,'B':3,'N':3,'P':1,'k':1000,'q':9,'r':5,'b':3,'n':3,'p':1}
 name = {'K':"Kingfisher",'Q':"Quetzal",'R':"Robin",'B':"Blue jay",'N':"Nighthawk",'P':"Parakeet",
         'k':"kingfisher",'q':"quetzal",'r':"robin",'b':"blue jay",'n':"nighthawk",'p':"parakeet"}
+weight = [10, 5, 1]
 
+print "Thinking! Please wait...\n"
 init_time = timeit.default_timer()
 succ_dict = {}
 cost_dict = {}
@@ -242,22 +244,20 @@ try:
 except:
     move_dict = {}
 
-h = 3
-for i in range(1, 20, h):
+S_next, M_next = minimax_decision(S0, turn, 1)
+piece, r, c, r_n, c_n = M_next
+print("Hmm, I'd recommend moving the {} at row {} column {} to row {} column {}.".format(name[piece],r+1,c+1,r_n+1,c_n+1))
+print("New board:")
+print(S_next)
+
+h = 2
+for i in range(3, 15, h):
     S_next, M_next = minimax_decision(S0, turn, i)
     piece, r, c, r_n, c_n = M_next
 #    print "Hmm, I'd recommend moving the {} at row {} column {} to row {} column {}.\nNew board:\n{}".format(name[piece],r+1,c+1,r_n+1,c_n+1,S_next)
-    print "Thinking! Please wait..."
     print("Hmm, I'd recommend moving the {} at row {} column {} to row {} column {}.".format(name[piece],r+1,c+1,r_n+1,c_n+1))
     print("New board:")
     print(S_next)
     cPickle.dump(move_dict, open('move_dict.txt', 'w'))
     if timeit.default_timer() - init_time > time_limit:
         break
-
-#######################################################################################
-# Remove these lines later
-#print_board(S0)
-#print("")
-#print_board(S_next)
-#######################################################################################

@@ -14,12 +14,10 @@ where
 
 and
 
-<a href="https://www.codecogs.com/eqnedit.php?latex=w&space;=&space;(1,1,3)&space;\in&space;R^3" target="_blank"><img src="https://latex.codecogs.com/gif.latex?w&space;=&space;(1,1,3)&space;\in&space;R^3" title="w = (1,1,3) \in R^3" /></a>
+<a href="https://www.codecogs.com/eqnedit.php?latex=w&space;=&space;(10,1,1)&space;\in&space;R^3" target="_blank"><img src="https://latex.codecogs.com/gif.latex?w&space;=&space;(10,1,1)&space;\in&space;R^3" title="w = (10,1,1) \in R^3" /></a>
 
 One interesting thing about `f[2]` is that, if say MAX's bishop can attack on (1,1) and MIN's bishop can also attack on (1,1) then it will be "0".
 But if there's another MAX's piece that can attack on (1,1) then we will count that as "1"
-
-- Trapped piece: A piece if moved, loses Kingfisher of Quetzal.
 
 - Value of each pieces on chess board
     - Parakeet - 1 point
@@ -27,7 +25,22 @@ But if there's another MAX's piece that can attack on (1,1) then we will count t
     - Blue jay - 3 points
     - Robin - 5 points
     - Quetzal - 9 points
-    - Kingfisher - 100,000 points
+    - Kingfisher - 1,000 points
+
+The fourth evaluation function that we wanted to implement was the Pawn Structure
+    - For each pawn of MAX, +1 for each of MAX piece in the pawn's diagonal places
+
+- The Algorithm 
+
+We are using Mini-Max Algorithm with alpha beta pruning along with some additional features
+    - Our algorithm works in a Iterative Deepening Depth First Search fashion
+    - To make it work faster, we stored the successors of each state in a dictionary, so when we increase the max_depth of our algorithm        we can avoid finding successors again and again
+    - We also calculated the evaluation of a state while finding its successors and stored it in a dictionary. This way we were avoiding        looping through the board since we were already doing that while finding it's successors.
+    - We started our algorithm from height 3 which could be evaluated within a couple of seconds. So at first, we run minimax normally          and record for each state which is its 'max' successor or 'min' successor, we're storing this in a dictionary. 
+    - Now, for the second time we increment the height by 3, ie, now run to a depth 6. However, this time for the first max node we             evaluate all it's successor and for each successor onwards we just access its best child, ie, max node or min node. However,            after height 3, we haven't explored anything yet, so we explore again normally for all its successors using minimax with alpha          beta pruning to height and again store each node's best successor, ie, max or min node.  
+    - The algorithm keeps incrementing the height by 3 until the time ends.
+    - For each iteration of height, we also save our dictionary to a file which can used in the next time run of the program
+
 
 ### Usage
 

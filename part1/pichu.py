@@ -1,4 +1,9 @@
 #!/usr/bin/env python
+
+#==============================================================================
+# Please see readme for documentation
+#==============================================================================
+
 import sys
 import cPickle
 import timeit

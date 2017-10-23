@@ -4,19 +4,20 @@
 
 ### Evaluation Function
 
-<a href="https://www.codecogs.com/eqnedit.php?latex=e(s)&space;=&space;\sum_{i=1}^5{&space;w_i&space;f_i}(s)" target="_blank"><img src="https://latex.codecogs.com/gif.latex?e(s)&space;=&space;\sum_{i=1}^5{&space;w_i&space;f_i}(s)" title="e(s) = \sum_{i=1}^5{ w_i f_i}(s)" /></a>
+<a href="https://www.codecogs.com/eqnedit.php?latex=e(s)&space;=&space;\sum_{i=0}^2{&space;w_i&space;f_i}(s)" target="_blank"><img src="https://latex.codecogs.com/gif.latex?e(s)&space;=&space;\sum_{i=0}^2{&space;w_i&space;f_i}(s)" title="e(s) = \sum_{i=0}^2{ w_i f_i}(s)" /></a>
 
 where 
 
-- <a href="https://www.codecogs.com/eqnedit.php?latex=f_1(s)" target="_blank"><img src="https://latex.codecogs.com/gif.latex?f_1(s)" title="f_1(s)" /></a> = Number of possible moves of the pieces for White - Number of possible moves of the pieces for Black
-- <a href="https://www.codecogs.com/eqnedit.php?latex=f_2(s)" target="_blank"><img src="https://latex.codecogs.com/gif.latex?f_2(s)" title="f_2(s)" /></a> = Black checkmated - White checkmated (here 1 if checkmate, otherwise 0)
-- <a href="https://www.codecogs.com/eqnedit.php?latex=f_3(s)" target="_blank"><img src="https://latex.codecogs.com/gif.latex?f_3(s)" title="f_3(s)" /></a> = Number of open tiles for Kingfisher for White - Number of open tiles for Kingfisher for Black
-- <a href="https://www.codecogs.com/eqnedit.php?latex=f_4(s)" target="_blank"><img src="https://latex.codecogs.com/gif.latex?f_4(s)" title="f_4(s)" /></a> = Number of trapped pieces for Black - Number of trapped pieces for White
-- <a href="https://www.codecogs.com/eqnedit.php?latex=f_5(s)" target="_blank"><img src="https://latex.codecogs.com/gif.latex?f_5(s)" title="f_5(s)" /></a> = Sum of the values of pieces for White - Sum of the values of pieces for Black
+- <a href="https://www.codecogs.com/eqnedit.php?latex=f_0(s)" target="_blank"><img src="https://latex.codecogs.com/gif.latex?f_0(s)" title="f_0(s)" /></a> = sum of value of pieces of MAX - sum of value of pieces of MIN
+- <a href="https://www.codecogs.com/eqnedit.php?latex=f_1(s)" target="_blank"><img src="https://latex.codecogs.com/gif.latex?f_1(s)" title="f_1(s)" /></a> = number of moves possible for MAX - number of moves possible for MIN
+- <a href="https://www.codecogs.com/eqnedit.php?latex=f_2(s)" target="_blank"><img src="https://latex.codecogs.com/gif.latex?f_2(s)" title="f_2(s)" /></a> = number of unique places in the board on which only MAX can attack in the next move
 
 and
 
-<a href="https://www.codecogs.com/eqnedit.php?latex=w&space;=&space;(1,100,3,3,1)&space;\in&space;R^5" target="_blank"><img src="https://latex.codecogs.com/gif.latex?w&space;=&space;(1,100,3,3,1)&space;\in&space;R^5" title="w = (1,100,3,3,1) \in R^5" /></a>
+<a href="https://www.codecogs.com/eqnedit.php?latex=w&space;=&space;(1,1,3)&space;\in&space;R^3" target="_blank"><img src="https://latex.codecogs.com/gif.latex?w&space;=&space;(1,1,3)&space;\in&space;R^3" title="w = (1,1,3) \in R^3" /></a>
+
+One interesting thing about `f[2]` is that, if say MAX's bishop can attack on (1,1) and MIN's bishop can also attack on (1,1) then it will be "0".
+But if there's another MAX's piece that can attack on (1,1) then we will count that as "1"
 
 - Trapped piece: A piece if moved, loses Kingfisher of Quetzal.
 
@@ -26,6 +27,7 @@ and
     - Blue jay - 3 points
     - Robin - 5 points
     - Quetzal - 9 points
+    - Kingfisher - 100,000 points
 
 ### Usage
 

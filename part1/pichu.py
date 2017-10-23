@@ -232,7 +232,7 @@ player = {'w':['K','Q','R','B','N','P'], 'b':['k','q','r','b','n','p']}
 value = {'K':1000,'Q':9,'R':5,'B':3,'N':3,'P':1,'k':1000,'q':9,'r':5,'b':3,'n':3,'p':1}
 name = {'K':"Kingfisher",'Q':"Quetzal",'R':"Robin",'B':"Blue jay",'N':"Nighthawk",'P':"Parakeet",
         'k':"kingfisher",'q':"quetzal",'r':"robin",'b':"blue jay",'n':"nighthawk",'p':"parakeet"}
-weight = [10, 5, 1]
+weight = [10, 1, 1]
 
 print "Thinking! Please wait...\n"
 init_time = timeit.default_timer()
